@@ -131,7 +131,12 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	 * If the exception is the result of an ECALL, check whether to
 	 * perform a context-switch or an IRQ offload. Otherwise call _Fault
 	 * to report the exception.
+   * !!!
+   * This will only check if the exception is a result of an ECALL from M-mode (Exception code 11)
+   * To support user mode this will also have to check for a U-mode ECALL (code 8)
+   * !!!
 	 */
+
 	csrr t0, mcause
 	li t2, SOC_MCAUSE_EXP_MASK
 	and t0, t0, t2
@@ -143,7 +148,9 @@ SECTION_FUNC(exception.entry, __irq_wrapper)
 	 */
 	beq t0, t1, is_syscall
 
-	/*
+  li t1, 0x8
+  beq t0, t1, is_syscall
+   /*
 	 * Call _Fault to handle exception.
 	 * Stack pointer is pointing to a z_arch_esf_t structure, pass it
 	 * to _Fault (via register a0).
@@ -164,6 +171,7 @@ is_syscall:
 	 * It's safe to always increment by 4, even with compressed
 	 * instructions, because the ecall instruction is always 4 bytes.
 	 */
+   addi s3, x0, 5 /* REMOVE!!!!! */
 	RV_OP_LOADREG t0, __z_arch_esf_t_mepc_OFFSET(sp)
 	addi t0, t0, 4
 	RV_OP_STOREREG t0, __z_arch_esf_t_mepc_OFFSET(sp)
