@@ -15,6 +15,7 @@
 
 #include <autoconf.h>
 #include <linker/sections.h>
+#include <devicetree.h>
 
 #include <linker/linker-defs.h>
 #include <linker/linker-tool.h>
@@ -29,6 +30,10 @@
 #define _VECTOR_SECTION_NAME        vector
 #define _EXCEPTION_SECTION_NAME     exceptions
 #define _RESET_SECTION_NAME         reset
+
+_region_min_align = 4;
+#define MPU_ALIGN(region_size) \
+    . = ALIGN(_region_min_align)
 
 MEMORY
 {
@@ -88,6 +93,9 @@ SECTIONS
 		KEEP(*(".openocd_debug.*"))
 
 		_image_text_start = .;
+
+    #include <linker/priv_stacks-text.ld>
+    #include <linker/kobject-text.ld>
 
 		*(.text)
 		*(".text.*")
@@ -149,12 +157,35 @@ SECTIONS
 
 	}  GROUP_DATA_LINK_IN(RAMABLE_REGION, ROMABLE_REGION)
 
+
+
 #include <linker/common-ram.ld>
+
+/* !!!MORE TEST!!! FROM ARM */
+#include <linker/priv_stacks.ld>
+#include <linker/kobject.ld>
+
+#include <linker/priv_stacks-noinit.ld>
+#include <linker/cplusplus-ram.ld>
+/* !!!MORE TEST!!! FROM ARM */
 
 /* Located in generated directory. This file is populated by the
  * zephyr_linker_sources() Cmake function.
  */
 #include <snippets-ram-sections.ld>
+
+/* !!!!TEST!!!! REMOVE*/
+#if defined(CONFIG_USERSPACE)
+#define APP_SHARED_ALIGN . = ALIGN(_region_min_align);
+#define SMEM_PARTITION_ALIGN MPU_ALIGN
+
+#include <app_smem.ld>
+
+	_app_smem_size = _app_smem_end - _app_smem_start;
+	_app_smem_rom_start = LOADADDR(_APP_SMEM_SECTION_NAME);
+#endif  /* CONFIG_USERSPACE */
+/* !!!!TEST!!!! REMOVE*/
+
     __data_ram_end = .;
 
     SECTION_DATA_PROLOGUE(_BSS_SECTION_NAME,(NOLOAD),)
