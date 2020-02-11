@@ -87,6 +87,13 @@ config ARCH_HAS_USERSPACE
 	bool "Userspace is implemented"
 	default y
 
+config CPU_HAS_MPU
+	bool "Memory protection implemented"
+	default y
+
+config MEMORY_PROTECTION
+	bool "Enable memory protection"
+	default y
 
 config GEN_ISR_TABLES
 	default y

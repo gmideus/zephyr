@@ -25,6 +25,15 @@
 #include <soc.h>
 #include <devicetree.h>
 
+#ifdef CONFIG_USERSPACE
+#include <arch/riscv/syscall.h>
+#endif /* CONFIG_USERSPACE */
+
+#ifdef CONFIG_MEMORY_PROTECTION
+#include <arch/riscv/mpu.h>
+#endif /* CONFIG_MEMORY_PROTECTION */
+
+
 /* stacks, for RISCV architecture stack should be 16byte-aligned */
 #define STACK_ALIGN  16
 
