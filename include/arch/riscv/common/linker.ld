@@ -124,6 +124,9 @@ SECTIONS
 #include <soc-rodata.ld>
 #endif
 
+#include <linker/priv_stacks-rom.ld>
+#include <linker/kobject-rom.ld>
+
 	} GROUP_LINK_IN(ROMABLE_REGION)
 
 #include <linker/cplusplus-rom.ld>
